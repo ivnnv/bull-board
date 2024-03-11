@@ -5,7 +5,7 @@
   border-radius: 0.25rem;
   padding: 1em;
   display: flex;
-  min-height: 320px;
+  flex-direction: column;
   max-height: 500px;
 }
 
@@ -21,21 +21,43 @@
 
 .title {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.title h4,
+.title h5,
 .sideInfo span {
-  font-size: 1.44rem;
+  font-size: 1.2rem;
   font-weight: 300;
   color: #4a5568;
   line-height: 1;
 }
 
-.title h4 span {
-  margin-left: 1.5rem;
+.title h5 span {
+  margin-left: 1rem;
   color: #a0aec0;
-  font-size: 0.694em;
+  font-size: 0.833em;
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h4 {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #4a5568;
+}
+
+.details {
+  display: flex;
+  margin-top: 1rem;
+  width: 100%;
 }
 
 .sideInfo {
@@ -57,6 +79,10 @@
   padding-right: 1rem;
 }
 
+.collapseBtn {
+  padding: 0.25rem 0.5rem;
+}
+
 .content {
   position: relative;
   flex: 1;
@@ -70,5 +96,10 @@
 }
 
 .jobLink {
+  color: inherit;
   text-decoration: none;
+}
+
+.jobLink:hover {
+  text-decoration: underline;
 }
