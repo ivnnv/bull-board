@@ -1,9 +1,11 @@
 import { Job, Queue } from 'bull';
+import BullQueue from 'bull';
 import {
   JobCleanStatus,
   JobCounts,
   JobStatus,
   QueueAdapterOptions,
+  QueueJobOptions,
   Status,
 } from '../../typings/app';
 import { STATUSES } from '../constants/statuses';
@@ -11,7 +13,11 @@ import { BaseAdapter } from './base';
 
 export class BullAdapter extends BaseAdapter {
   constructor(public queue: Queue, options: Partial<QueueAdapterOptions> = {}) {
-    super({ ...options, allowCompletedRetries: false });
+    super('bull', { ...options, allowCompletedRetries: false });
+
+    if (!(queue instanceof BullQueue)) {
+      throw new Error(`You've used the Bull adapter with a non-Bull queue.`);
+    }
   }
 
   public getRedisInfo(): Promise<string> {
@@ -26,29 +32,19 @@ export class BullAdapter extends BaseAdapter {
     return this.queue.clean(graceTimeMs, jobStatus as any);
   }
 
+  public addJob(name: string, data: any, options: QueueJobOptions) {
+    return this.queue.add(name, data, options);
+  }
+
   public getJob(id: string): Promise<Job | undefined | null> {
-    return this.queue.getJob(id).then((job) => {
-      if (typeof job?.attemptsMade === 'number') {
-        job.attemptsMade++;
-      }
-      return job;
-    });
+    return this.queue.getJob(id).then((job) => job && this.alignJobData(job));
   }
 
   public getJobs(jobStatuses: JobStatus<'bull'>[], start?: number, end?: number): Promise<Job[]> {
-    return this.queue.getJobs(jobStatuses, start, end).then((jobs) =>
-      jobs.map((job) => {
-        if (typeof job?.attemptsMade === 'number') {
-          job.attemptsMade++; // increase to align it with bullMQ behavior
-        }
-
-        return job;
-      })
-    );
+    return this.queue.getJobs(jobStatuses, start, end).then((jobs) => jobs.map(this.alignJobData));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public getJobCounts(..._jobStatuses: JobStatus<'bull'>[]): Promise<JobCounts> {
+  public getJobCounts(): Promise<JobCounts> {
     return this.queue.getJobCounts() as unknown as Promise<JobCounts>;
   }
 
@@ -98,5 +94,12 @@ export class BullAdapter extends BaseAdapter {
       STATUSES.delayed,
       STATUSES.paused,
     ];
+  }
+
+  private alignJobData(job: Job) {
+    if (typeof job?.attemptsMade === 'number') {
+      job.attemptsMade++;
+    }
+    return job;
   }
 }

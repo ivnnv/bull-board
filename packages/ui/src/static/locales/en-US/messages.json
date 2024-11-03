@@ -7,16 +7,18 @@
   },
   "DASHBOARD": {
     "JOBS_COUNT_one": "{{count}} Job",
-    "JOBS_COUNT": "{{count}} Jobs"
+    "JOBS_COUNT": "{{count}} Jobs",
+    "NO_FILTERED_MESSAGE": "There are no queues that have a job with \"{{status}}\" status.\n<lnk>Click here</lnk> to clear the filter."
   },
   "JOB": {
-    "NAME": "Name",
+    "DELAY_CHANGED": "*Delay changed; the new run time is currently unknown",
     "NOT_FOUND": "Job Not found",
     "STATUS": "Status: {{status}}",
     "ADDED_AT": "Added at",
     "WILL_RUN_AT": "Will run at",
     "DELAYED_FOR": "delayed for",
     "PROCESS_STARTED_AT": "Process started at",
+    "PROCESSED_BY": "by {{processedBy}}",
     "FAILED_AT": "Failed at",
     "FINISHED_AT": "Finished at",
     "ATTEMPTS": "attempt #{{attempts}}",
@@ -36,7 +38,14 @@
     "ACTIONS": {
       "PROMOTE": "Promote",
       "CLEAN": "Clean",
-      "RETRY": "Retry"
+      "RETRY": "Retry",
+      "UPDATE_DATA": "Update Data",
+      "DUPLICATE": "Duplicate",
+      "CONFIRM": {
+        "PROMOTE": "Are you sure that you want to promote this job?",
+        "RETRY": "Are you sure that you want to retry this job?",
+        "CLEAN": "Are you sure that you want to clean this job?"
+      }
     },
     "TABS": {
       "DATA": "Data",
@@ -55,12 +64,15 @@
       "RESUME": "Resume",
       "PAUSE": "Pause",
       "EMPTY": "Empty",
-      "RETRY_ALL_CONFIRM_MSG": "Are you sure that you want to retry all {{status}} jobs?",
-      "CLEAN_ALL_CONFIRM_MSG": "Are you sure that you want to clean all {{status}} jobs?",
-      "PROMOTE_ALL_CONFIRM_MSG": "Are you sure that you want to promote all delayed jobs?",
-      "PAUSE_QUEUE_CONFIRM_MSG": "Are you sure that you want to pause queue processing?",
-      "EMPTY_QUEUE_CONFIRM_MSG": "Are you sure that you want to empty the queue?",
-      "RESUME_QUEUE_CONFIRM_MSG": "Are you sure that you want to resume queue processing?"
+      "ADD_JOB": "Add job",
+      "CONFIRM": {
+        "RETRY_ALL": "Are you sure that you want to retry all {{status}} jobs?",
+        "CLEAN_ALL": "Are you sure that you want to clean all {{status}} jobs?",
+        "PROMOTE_ALL": "Are you sure that you want to promote all delayed jobs?",
+        "PAUSE_QUEUE": "Are you sure that you want to pause queue processing?",
+        "EMPTY_QUEUE": "Are you sure that you want to empty the queue?",
+        "RESUME_QUEUE": "Are you sure that you want to resume queue processing?"
+      }
     },
     "STATUS": {
       "LATEST": "Latest",
@@ -99,6 +111,7 @@
   },
   "SETTINGS": {
     "TITLE": "Settings",
+    "LANGUAGE": "Language",
     "POLLING_INTERVAL": "Polling interval",
     "POLLING_OPTIONS": {
       "OFF": "Off",
@@ -113,6 +126,22 @@
     "COLLAPSE_JOB": "Collapse job",
     "COLLAPSE_JOB_DATA": "Collapse job data",
     "COLLAPSE_JOB_OPTIONS": "Collapse job options",
-    "COLLAPSE_JOB_ERROR": "Collapse job error"
+    "COLLAPSE_JOB_ERROR": "Collapse job error",
+    "DARK_MODE": "Dark mode"
+  },
+  "ADD_JOB": {
+    "TITLE": "Add job",
+    "TITLE_duplicate": "Duplicate job",
+    "QUEUE_NAME": "Queue name",
+    "JOB_NAME": "Job name",
+    "JOB_DATA": "Job data",
+    "JOB_OPTIONS": "Job options",
+    "ADD": "Add",
+    "DUPLICATE": "Duplicate"
+  },
+  "UPDATE_JOB_DATA": {
+    "TITLE": "Update job data",
+    "UPDATE": "Update",
+    "JOB_DATA": "Job data"
   }
 }

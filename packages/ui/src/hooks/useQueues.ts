@@ -69,44 +69,51 @@ export function useQueues(): Omit<QueuesState, 'updateQueues'> & { actions: Queu
   const retryAll = (queueName: string, status: JobRetryStatus) =>
     withConfirmAndUpdate(
       () => api.retryAll(queueName, status),
-      t('QUEUE.ACTIONS.RETRY_ALL_CONFIRM_MSG', { status }),
+      t('QUEUE.ACTIONS.CONFIRM.RETRY_ALL', { status }),
       confirmQueueActions
     );
 
   const promoteAll = (queueName: string) =>
     withConfirmAndUpdate(
       () => api.promoteAll(queueName),
-      t('QUEUE.ACTIONS.PROMOTE_ALL_CONFIRM_MSG'),
+      t('QUEUE.ACTIONS.CONFIRM.PROMOTE_ALL'),
       confirmQueueActions
     );
 
   const cleanAll = (queueName: string, status: JobCleanStatus) =>
     withConfirmAndUpdate(
       () => api.cleanAll(queueName, status),
-      t('QUEUE.ACTIONS.CLEAN_ALL_CONFIRM_MSG', { status }),
+      t('QUEUE.ACTIONS.CONFIRM.CLEAN_ALL', { status }),
       confirmQueueActions
     );
 
   const pauseQueue = (queueName: string) =>
     withConfirmAndUpdate(
       () => api.pauseQueue(queueName),
-      t('QUEUE.ACTIONS.PAUSE_QUEUE_CONFIRM_MSG'),
+      t('QUEUE.ACTIONS.CONFIRM.PAUSE_QUEUE'),
       confirmQueueActions
     );
 
   const resumeQueue = (queueName: string) =>
     withConfirmAndUpdate(
       () => api.resumeQueue(queueName),
-      t('QUEUE.ACTIONS.RESUME_QUEUE_CONFIRM_MSG'),
+      t('QUEUE.ACTIONS.CONFIRM.RESUME_QUEUE'),
       confirmQueueActions
     );
 
   const emptyQueue = (queueName: string) =>
     withConfirmAndUpdate(
       () => api.emptyQueue(queueName),
-      t('QUEUE.ACTIONS.EMPTY_QUEUE_CONFIRM_MSG'),
+      t('QUEUE.ACTIONS.CONFIRM.EMPTY_QUEUE'),
       confirmQueueActions
     );
+
+  const addJob = (
+    queueName: string,
+    jobName: string,
+    jobData: Record<any, any>,
+    jobOptions: Record<any, any>
+  ) => withConfirmAndUpdate(() => api.addJob(queueName, jobName, jobData, jobOptions), '', false);
 
   return {
     queues,
@@ -120,6 +127,7 @@ export function useQueues(): Omit<QueuesState, 'updateQueues'> & { actions: Queu
       pauseQueue,
       resumeQueue,
       emptyQueue,
+      addJob,
     },
   };
 }

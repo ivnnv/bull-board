@@ -7,8 +7,9 @@ import { HeaderActions } from './components/HeaderActions/HeaderActions';
 import { Loader } from './components/Loader/Loader';
 import { Menu } from './components/Menu/Menu';
 import { Title } from './components/Title/Title';
-import { useActiveQueue } from './hooks/useActiveQueue';
 import { useConfirm } from './hooks/useConfirm';
+import { useDarkMode } from './hooks/useDarkMode';
+import { useLanguageWatch } from './hooks/useLanguageWatch';
 import { useQueues } from './hooks/useQueues';
 import { useScrollTopOnNav } from './hooks/useScrollTopOnNav';
 
@@ -28,9 +29,10 @@ const OverviewPageLazy = React.lazy(() =>
 
 export const App = () => {
   useScrollTopOnNav();
-  const { queues, actions: queueActions } = useQueues();
-  const activeQueue = useActiveQueue({ queues });
+  const { actions: queueActions } = useQueues();
   const { confirmProps } = useConfirm();
+  useLanguageWatch();
+  useDarkMode();
 
   useEffect(() => {
     queueActions.updateQueues();
@@ -39,17 +41,14 @@ export const App = () => {
   return (
     <>
       <Header>
-        <Title name={activeQueue?.name} description={activeQueue?.description} />
+        <Title />
         <HeaderActions />
       </Header>
       <main>
         <div>
           <Suspense fallback={<Loader />}>
             <Switch>
-              <Route
-                path="/queue/:name/:jobId"
-                render={() => <JobPageLazy queue={activeQueue || null} />}
-              />
+              <Route path="/queue/:name/:jobId" render={() => <JobPageLazy />} />
               <Route path="/queue/:name" render={() => <QueuePageLazy />} />
 
               <Route path="/" exact render={() => <OverviewPageLazy />} />
@@ -58,7 +57,7 @@ export const App = () => {
           <ConfirmModal {...confirmProps} />
         </div>
       </main>
-      <Menu queues={queues} />
+      <Menu />
       <ToastContainer />
     </>
   );

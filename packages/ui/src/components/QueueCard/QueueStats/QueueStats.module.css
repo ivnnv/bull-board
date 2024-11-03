@@ -11,20 +11,34 @@
   overflow: hidden;
   height: 1rem;
   border-radius: 9999px;
-  background-color: #e5e7eb;
+  background-color: var(--separator-color);
   line-height: 1;
   font-size: 0.75rem;
-  color: #fff;
+  color: rgba(255, 255, 255, 1);
   text-align: center;
+  z-index: 10;
 }
 
-.progressBar > div {
+.progressBar > .bar {
   padding: 0.125rem;
-  transition: width 0.3s ease-in;
+  transition: width 0.3s ease-in, opacity 0.2s ease-in-out;
+
+  min-width: min-content;
+  text-decoration: none;
 }
 
-.progressBar > div + div {
-  border-left: 2px solid #fff;
+.progressBar > .bar,
+.progressBar > .bar:visited,
+.progressBar > .bar:active {
+  color: inherit;
+}
+
+.progressBar > .bar:hover {
+  opacity: 0.75;
+}
+
+.progressBar > .bar + .bar {
+  border-left: 2px solid var(--card-bg);
 }
 
 .waiting {
@@ -32,7 +46,7 @@
 }
 
 .waitingChildren {
-  background-color: var(--waitingChildren);
+  background-color: var(--waiting-children);
 }
 
 .prioritized {

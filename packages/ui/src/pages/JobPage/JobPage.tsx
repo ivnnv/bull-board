@@ -1,21 +1,40 @@
-import { AppQueue, JobRetryStatus } from '@bull-board/api/typings/app';
+import { JobRetryStatus } from '@bull-board/api/typings/app';
 import cn from 'clsx';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useHistory } from 'react-router-dom';
 import { ArrowLeftIcon } from '../../components/Icons/ArrowLeft';
 import { JobCard } from '../../components/JobCard/JobCard';
 import { StickyHeader } from '../../components/StickyHeader/StickyHeader';
+import { useActiveQueue } from '../../hooks/useActiveQueue';
 import { useJob } from '../../hooks/useJob';
+import { useModal } from '../../hooks/useModal';
 import { useSelectedStatuses } from '../../hooks/useSelectedStatuses';
 import { links } from '../../utils/links';
 import buttonS from '../../components/Button/Button.module.css';
 
-export const JobPage = ({ queue }: { queue: AppQueue | null }) => {
+const AddJobModalLazy = React.lazy(() =>
+  import('../../components/AddJobModal/AddJobModal').then(({ AddJobModal }) => ({
+    default: AddJobModal,
+  }))
+);
+
+const UpdateJobDataModalLazy = React.lazy(() =>
+  import('../../components/UpdateJobDataModal/UpdateJobDataModal').then(
+    ({ UpdateJobDataModal }) => ({
+      default: UpdateJobDataModal,
+    })
+  )
+);
+
+export const JobPage = () => {
   const { t } = useTranslation();
   const history = useHistory();
+
+  const queue = useActiveQueue();
   const { job, status, actions } = useJob();
   const selectedStatuses = useSelectedStatuses();
+  const modal = useModal<'updateJobData' | 'addJob'>();
 
   actions.pollJob();
 
@@ -56,10 +75,28 @@ export const JobPage = ({ queue }: { queue: AppQueue | null }) => {
           promoteJob: actions.promoteJob(queue.name)(job),
           retryJob: actions.retryJob(queue.name, status as JobRetryStatus)(job),
           getJobLogs: actions.getJobLogs(queue.name)(job),
+          updateJobData: () => modal.open('updateJobData'),
+          duplicateJob: () => modal.open('addJob'),
         }}
         readOnlyMode={queue.readOnlyMode}
         allowRetries={(job.isFailed || queue.allowCompletedRetries) && queue.allowRetries}
       />
+      <Suspense fallback={null}>
+        {modal.isMounted('addJob') && (
+          <AddJobModalLazy
+            open={modal.isOpen('addJob')}
+            onClose={modal.close('addJob')}
+            job={job}
+          />
+        )}
+        {modal.isMounted('updateJobData') && (
+          <UpdateJobDataModalLazy
+            open={modal.isOpen('updateJobData')}
+            onClose={modal.close('updateJobData')}
+            job={job}
+          />
+        )}
+      </Suspense>
     </section>
   );
 };

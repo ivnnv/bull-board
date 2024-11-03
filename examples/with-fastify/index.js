@@ -7,15 +7,15 @@ const fastify = require('fastify');
 const sleep = (t) => new Promise((resolve) => setTimeout(resolve, t * 1000));
 
 const redisOptions = {
-  port: 6379,
-  host: 'localhost',
-  password: '',
+  port: process.env.REDIS_PORT || 6379,
+  host: process.env.REDIS_HOST || 'localhost',
+  password: process.env.REDIS_PASS || '',
   tls: false,
 };
 
 const createQueueMQ = (name) => new QueueMQ(name, { connection: redisOptions });
 
-async function setupBullMQProcessor(queueName) {
+function setupBullMQProcessor(queueName) {
   new Worker(
     queueName,
     async (job) => {
@@ -33,17 +33,29 @@ async function setupBullMQProcessor(queueName) {
   );
 }
 
-const run = async () => {
-  const exampleBullMq = createQueueMQ('BullMQ');
+function readQueuesFromEnv() {
+  const qStr = process.env.BULL_QUEUE_NAMES_CSV || 'Example';
+  try {
+    const qs = qStr.split(',');
+    return qs.map((q) => q.trim());
+  } catch (e) {
+    return [];
+  }
+}
 
-  await setupBullMQProcessor(exampleBullMq.name);
+const run = async () => {
+  const queues = readQueuesFromEnv().map((q) => createQueueMQ(q));
+
+  queues.forEach((q) => {
+    setupBullMQProcessor(q.name);
+  });
 
   const app = fastify();
 
   const serverAdapter = new FastifyAdapter();
 
   createBullBoard({
-    queues: [new BullMQAdapter(exampleBullMq)],
+    queues: queues.map((q) => new BullMQAdapter(q)),
     serverAdapter,
   });
 
@@ -57,22 +69,23 @@ const run = async () => {
       opts.delay = +opts.delay * 1000; // delay must be a number
     }
 
-    exampleBullMq.add('Add', { title: req.query.title }, opts);
+    queues.forEach((queue) => queue.add('Add', { title: req.query.title }, opts));
 
     reply.send({
       ok: true,
     });
   });
 
-  await app.listen({ port: 3000 });
+  const port = 3000;
+  await app.listen({ host: '0.0.0.0', port });
   // eslint-disable-next-line no-console
-  console.log('Running on 3000...');
-  console.log('For the UI, open http://localhost:3000/ui');
-  console.log('Make sure Redis is running on port 6379 by default');
+  console.log(`For the UI, open http://localhost:${port}/ui`);
+  console.log('Make sure Redis is configured in env variables. See .env.example');
   console.log('To populate the queue, run:');
-  console.log('  curl http://localhost:3000/add?title=Example');
+  console.log(`  curl http://localhost:${port}/add?title=Example`);
   console.log('To populate the queue with custom options (opts), run:');
-  console.log('  curl http://localhost:3000/add?title=Test&opts[delay]=9');
+  console.log(`  curl http://localhost:${port}/add?title=Test&opts[delay]=9`);
+  console.log(`*** If you launched from docker-compose use port 3333 instead of 3000 ***`);
 };
 
 run().catch((e) => {

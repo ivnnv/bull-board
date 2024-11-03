@@ -1,4 +1,5 @@
 import { AppRouteDefs } from '../typings/app';
+import { addJobHandler } from './handlers/addJob';
 import { cleanAllHandler } from './handlers/cleanAll';
 import { cleanJobHandler } from './handlers/cleanJob';
 import { emptyQueueHandler } from './handlers/emptyQueue';
@@ -13,6 +14,7 @@ import { resumeQueueHandler } from './handlers/resumeQueue';
 import { retryAllHandler } from './handlers/retryAll';
 import { retryJobHandler } from './handlers/retryJob';
 import { promoteAllHandler } from './handlers/promoteAll';
+import { updateJobDataHandler } from './handlers/updateJobData';
 
 export const appRoutes: AppRouteDefs = {
   entryPoint: {
@@ -32,6 +34,11 @@ export const appRoutes: AppRouteDefs = {
       method: 'get',
       route: '/api/queues/:queueName/:jobId',
       handler: jobHandler,
+    },
+    {
+      method: 'post',
+      route: '/api/queues/:queueName/add',
+      handler: addJobHandler,
     },
     {
       method: 'put',
@@ -77,6 +84,11 @@ export const appRoutes: AppRouteDefs = {
       method: 'put',
       route: '/api/queues/:queueName/:jobId/promote',
       handler: promoteJobHandler,
+    },
+    {
+      method: 'patch',
+      route: '/api/queues/:queueName/:jobId/update-data',
+      handler: updateJobDataHandler,
     },
   ],
 };

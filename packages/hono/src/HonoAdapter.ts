@@ -1,21 +1,21 @@
-import path from 'node:path';
-
 import type {
   AppControllerRoute,
   AppViewRoute,
   BullBoardQueues,
   ControllerHandlerReturnType,
+  HTTPMethod,
   IServerAdapter,
   UIConfig,
 } from '@bull-board/api/dist/typings/app';
 import type { serveStatic as nodeServeStatic } from '@hono/node-server/serve-static';
 import ejs from 'ejs';
-import { Hono } from 'hono';
 import type { Context } from 'hono';
+import { Hono } from 'hono';
 import type { serveStatic as bunServeStatic } from 'hono/bun';
 import type { serveStatic as cloudflarePagesServeStatic } from 'hono/cloudflare-pages';
 import type { serveStatic as cloudflareWorkersServeStatic } from 'hono/cloudflare-workers';
 import type { serveStatic as denoServeStatic } from 'hono/deno';
+import path from 'node:path';
 
 export class HonoAdapter implements IServerAdapter {
   protected bullBoardQueues: BullBoardQueues | undefined;
@@ -42,7 +42,15 @@ export class HonoAdapter implements IServerAdapter {
       | typeof nodeServeStatic
       | typeof cloudflarePagesServeStatic
       | typeof cloudflareWorkersServeStatic
-      | typeof denoServeStatic
+      | typeof denoServeStatic,
+    /**
+     * only required for Cloudflare Workers. you should import it like this:
+     *
+     *   import manifest from '__STATIC_CONTENT_MANIFEST'
+     *
+     * ... and pass it as-is to the HonoAdapter constructor.
+     */
+    protected manifest: Record<string, unknown> = {}
   ) {
     this.apiRoutes = new Hono();
   }
@@ -86,45 +94,6 @@ export class HonoAdapter implements IServerAdapter {
     return this;
   }
 
-  private registerRoute(
-    routeOrRoutes: string | string[],
-    method: 'get' | 'post' | 'put',
-    handler: AppControllerRoute['handler']
-  ) {
-    const { bullBoardQueues } = this;
-
-    if (!bullBoardQueues) {
-      throw new Error(`Please call 'setQueues' before using 'registerPlugin'`);
-    }
-
-    const routes = Array.isArray(routeOrRoutes) ? routeOrRoutes : [routeOrRoutes];
-
-    routes.forEach((route) => {
-      this.apiRoutes[method](route, async (c: Context) => {
-        try {
-          const response = await handler({
-            queues: bullBoardQueues,
-            params: c.req.param(),
-            query: c.req.query(),
-          });
-          return c.json(response.body, response.status || 200);
-        } catch (e) {
-          if (!this.errorHandler || !(e instanceof Error)) {
-            throw e;
-          }
-
-          const response = this.errorHandler(e);
-
-          if (typeof response.body === 'string') {
-            return c.text(response.body, response.status);
-          }
-
-          return c.json(response.body, response.status);
-        }
-      });
-    });
-  }
-
   setEntryRoute(routeDef: AppViewRoute): this {
     this.entryRoute = routeDef;
     return this;
@@ -141,38 +110,38 @@ export class HonoAdapter implements IServerAdapter {
   }
 
   registerPlugin() {
-    const { staticRoute, staticPath, entryRoute, viewPath, uiConfig } = this;
-
-    if (!staticRoute || !staticPath) {
+    if (!this.staticRoute || !this.staticPath) {
       throw new Error(`Please call 'setStaticPath' before using 'registerPlugin'`);
-    } else if (!entryRoute) {
+    } else if (!this.entryRoute) {
       throw new Error(`Please call 'setEntryRoute' before using 'registerPlugin'`);
-    } else if (!viewPath) {
+    } else if (!this.viewPath) {
       throw new Error(`Please call 'setViewsPath' before using 'registerPlugin'`);
-    } else if (!uiConfig) {
+    } else if (!this.uiConfig) {
       throw new Error(`Please call 'setUIConfig' before using 'registerPlugin'`);
     }
 
     const app = new Hono();
 
+    const staticBaseUrlPath = [this.basePath, this.staticRoute].join('/').replace(/\/{2,}/g, '/');
     app.get(
-      `${staticRoute}/*`,
+      `${this.staticRoute}/*`,
       this.serveStatic({
-        root: path.relative(process.cwd(), staticPath),
-        rewriteRequestPath: (p: string) => p.replace(path.join(this.basePath, staticRoute), ''),
+        root: path.relative(process.cwd(), this.staticPath),
+        rewriteRequestPath: (p: string) => p.replace(staticBaseUrlPath, ''),
+        manifest: this.manifest,
       })
     );
 
     app.route('/', this.apiRoutes);
 
-    const routeOrRoutes = entryRoute.route;
+    const routeOrRoutes = this.entryRoute.route;
     const routes = Array.isArray(routeOrRoutes) ? routeOrRoutes : [routeOrRoutes];
 
     routes.forEach((route) => {
-      app[entryRoute.method](route, async (c: Context) => {
-        const { name: fileName, params } = entryRoute.handler({
+      app[this.entryRoute!.method](route, async (c: Context) => {
+        const { name: fileName, params } = this.entryRoute!.handler({
           basePath: this.basePath,
-          uiConfig,
+          uiConfig: this.uiConfig ?? {},
         });
 
         const template = await ejs.renderFile(`${this.viewPath}/${fileName}`, params);
@@ -181,5 +150,58 @@ export class HonoAdapter implements IServerAdapter {
     });
 
     return app;
+  }
+
+  private registerRoute(
+    routeOrRoutes: string | string[],
+    method: HTTPMethod,
+    handler: AppControllerRoute['handler']
+  ) {
+    const { bullBoardQueues } = this;
+
+    if (!bullBoardQueues) {
+      throw new Error(`Please call 'setQueues' before using 'registerPlugin'`);
+    }
+
+    const routes = Array.isArray(routeOrRoutes) ? routeOrRoutes : [routeOrRoutes];
+
+    routes.forEach((route) => {
+      this.apiRoutes[method](route, async (c: Context) => {
+        let reqBody = {};
+        if (method !== 'get') {
+          // Safely attempt to parse the request body, since the UI does not include a request body with most requests
+          try {
+            reqBody = await c.req.json();
+          } catch {}
+        }
+
+        try {
+          const response = await handler({
+            queues: bullBoardQueues,
+            params: c.req.param(),
+            query: c.req.query(),
+            body: reqBody,
+          });
+
+          if (response.status == 204) {
+            return c.body(null, 204);
+          }
+
+          return c.json(response.body, response.status || 200);
+        } catch (e) {
+          if (!this.errorHandler || !(e instanceof Error)) {
+            throw e;
+          }
+
+          const response = this.errorHandler(e);
+
+          if (typeof response.body === 'string') {
+            return c.text(response.body, response.status);
+          }
+
+          return c.json(response.body, response.status);
+        }
+      });
+    });
   }
 }

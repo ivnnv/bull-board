@@ -20,6 +20,7 @@ export const formatJob = (job: QueueJob, queue: BaseAdapter): AppJob => {
     id: jobProps.id,
     timestamp: jobProps.timestamp,
     processedOn: jobProps.processedOn,
+    processedBy: jobProps.processedBy,
     finishedOn: jobProps.finishedOn,
     progress: jobProps.progress,
     attempts: jobProps.attemptsMade,
@@ -69,7 +70,7 @@ async function getAppQueues(
         !isActiveQueue || query.status === 'latest' ? jobStatuses : [query.status as JobStatus];
       const currentPage = +query.page || 1;
 
-      const counts = await queue.getJobCounts(...jobStatuses);
+      const counts = await queue.getJobCounts();
       const isPaused = await queue.isPaused();
 
       const pagination = getPagination(status, counts, currentPage, jobsPerPage);
@@ -88,6 +89,7 @@ async function getAppQueues(
         allowRetries: queue.allowRetries,
         allowCompletedRetries: queue.allowCompletedRetries,
         isPaused,
+        type: queue.type,
       };
     })
   );

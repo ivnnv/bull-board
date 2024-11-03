@@ -122,6 +122,9 @@ export class FastifyAdapter implements IServerAdapter {
         fastify.route({
           method,
           url,
+          schema: {
+            hide: true,
+          } as any,
           handler: (_req, reply) => {
             const { name, params } = handler({ basePath: this.basePath, uiConfig: this.uiConfig });
 
@@ -134,11 +137,15 @@ export class FastifyAdapter implements IServerAdapter {
         fastify.route({
           method: route.method,
           url: route.route,
+          schema: {
+            hide: true,
+          } as any,
           handler: async (request, reply) => {
             const response = await route.handler({
               queues: this.bullBoardQueues as any,
               params: request.params as any,
               query: request.query as any,
+              body: request.body as any,
             });
 
             return reply.status(response.status || 200).send(response.body);

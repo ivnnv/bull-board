@@ -11,17 +11,19 @@ import { Button } from '../Button/Button';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { Details } from './Details/Details';
 import { JobActions } from './JobActions/JobActions';
-import s from './JobCard.module.css';
 import { Progress } from './Progress/Progress';
 import { Timeline } from './Timeline/Timeline';
+import s from './JobCard.module.css';
 
 interface JobCardProps {
   job: AppJob;
-  jobUrl?: string;
+  jobUrl?: { pathname: string; search: string };
   status: Status;
   readOnlyMode: boolean;
   allowRetries: boolean;
   actions: {
+    updateJobData: () => void;
+    duplicateJob: () => void;
     promoteJob: () => Promise<void>;
     retryJob: () => Promise<void>;
     cleanJob: () => Promise<void>;
@@ -29,7 +31,7 @@ interface JobCardProps {
   };
 }
 
-const greenStatuses = [STATUSES.active, STATUSES.completed];
+const greenStatuses = [STATUSES.active, STATUSES.completed] as const;
 
 export const JobCard = ({
   job,
@@ -42,22 +44,26 @@ export const JobCard = ({
   const { t } = useTranslation();
   const { collapseJob } = useSettingsStore();
 
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [localCollapse, setLocalCollapse] = React.useState<boolean>();
 
-  React.useEffect(() => {
-    setIsOpen(!jobUrl ? true : !collapseJob)
-  }), [jobUrl, collapseJob];
-
-  const JobTitle = <h4 title={`#${job.id}`}>#{job.id}</h4>
+  const isExpandedCard = !jobUrl || localCollapse || !collapseJob;
+  const showCollapseExpandBtn = collapseJob && jobUrl;
+  const JobTitle = (
+    <h4>
+      {/^\d+$/.test(`${job.id}`) ? '#' : ''}
+      {job.id}
+    </h4>
+  );
 
   return (
-    <Card className={s.card}>
-      <Collapsible.Root style={{ width: '100%' }} open={isOpen}>
+    <Collapsible.Root asChild={true} open={isExpandedCard}>
+      <Card className={s.card}>
         <div className={s.header}>
           {jobUrl ? (
             <Link className={s.jobLink} to={jobUrl}>
               {JobTitle}
             </Link>
+<<<<<<< HEAD
           ) : JobTitle}
 
           <Collapsible.Trigger style={{ border: 'none', borderRadius: '5px' }}>
@@ -68,6 +74,20 @@ export const JobCard = ({
         </div>
 
         <Collapsible.Content>
+=======
+          ) : (
+            JobTitle
+          )}
+
+          {showCollapseExpandBtn && (
+            <Button className={s.collapseBtn} onClick={() => setLocalCollapse(!isExpandedCard)}>
+              {isExpandedCard ? <ArrowUpIcon /> : <ArrowDownIcon />}
+            </Button>
+          )}
+        </div>
+
+        <Collapsible.Content asChild={true}>
+>>>>>>> master
           <div className={s.details}>
             <div className={s.sideInfo}>
               <Timeline job={job} status={status} />
@@ -76,6 +96,7 @@ export const JobCard = ({
             <div className={s.contentWrapper}>
               <div className={s.title}>
                 <h5>
+<<<<<<< HEAD
                   {t('JOB.NAME')}: {job.name}
                   {job.attempts > 1 && (
                     <span style={{marginLeft: '0.5rem'}}>
@@ -83,6 +104,10 @@ export const JobCard = ({
                     </span>
                   )}
 
+=======
+                  {job.name}
+                  {job.attempts > 1 && <span>{t('JOB.ATTEMPTS', { attempts: job.attempts })}</span>}
+>>>>>>> master
                   {!!job.opts?.repeat?.count && (
                     <span>
                       {t(`JOB.REPEAT${!!job.opts?.repeat?.limit ? '_WITH_LIMIT' : ''}`, {
@@ -101,6 +126,7 @@ export const JobCard = ({
               <div className={s.content}>
                 <Details status={status} job={job} actions={actions} />
 
+<<<<<<< HEAD
                 {typeof job.progress === 'number' && (
                   <Progress
                     percentage={job.progress}
@@ -110,11 +136,27 @@ export const JobCard = ({
                     className={s.progress}
                   />
                 )}
+=======
+                <Progress
+                  progress={job.progress}
+                  status={
+                    job.isFailed && !greenStatuses.includes(status as any)
+                      ? STATUSES.failed
+                      : status
+                  }
+                  className={s.progress}
+                />
+>>>>>>> master
               </div>
             </div>
           </div>
         </Collapsible.Content>
+<<<<<<< HEAD
       </Collapsible.Root>
     </Card>
+=======
+      </Card>
+    </Collapsible.Root>
+>>>>>>> master
   );
 };

@@ -67,6 +67,17 @@ export class Api {
     );
   }
 
+  public updateJobData(
+    queueName: string,
+    jobId: AppJob['id'],
+    newData: Record<string, any>
+  ): Promise<void> {
+    return this.axios.patch(
+      `/queues/${encodeURIComponent(queueName)}/${encodeURIComponent(`${jobId}`)}/update-data`,
+      newData
+    );
+  }
+
   public getJobLogs(queueName: string, jobId: AppJob['id']): Promise<string[]> {
     return this.axios.get(
       `/queues/${encodeURIComponent(queueName)}/${encodeURIComponent(`${jobId}`)}/logs`
@@ -77,6 +88,19 @@ export class Api {
     return this.axios.get(
       `/queues/${encodeURIComponent(queueName)}/${encodeURIComponent(`${jobId}`)}`
     );
+  }
+
+  public addJob(
+    queueName: string,
+    jobName: string,
+    jobData: Record<any, any>,
+    jobOptions: Record<any, any>
+  ): Promise<GetJobResponse> {
+    return this.axios.post(`/queues/${encodeURIComponent(queueName)}/add`, {
+      name: jobName,
+      data: jobData,
+      options: jobOptions,
+    });
   }
 
   public pauseQueue(queueName: string) {
