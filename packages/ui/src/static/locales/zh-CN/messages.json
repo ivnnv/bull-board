@@ -7,7 +7,15 @@
   },
   "DASHBOARD": {
     "JOBS_COUNT": "{{count}} 个作业",
-    "NO_FILTERED_MESSAGE": "没有具有 \"{{status}}\" 状态的队列。\n<lnk>点击这里</lnk> 清除过滤器。"
+    "SORTING": {
+      "TITLE": "排序方式",
+      "FAILED": "失败的任务",
+      "DELAYED": "延迟的任务",
+      "WAITING": "等待中的任务",
+      "ACTIVE": "活动中的任务",
+      "COMPLETED": "已完成的任务",
+      "ALPHABETICAL": "字母顺序 (A-Z)"
+    }
   },
   "JOB": {
     "DELAY_CHANGED": "*延迟已更改；新的运行时间目前未知",
@@ -47,6 +55,7 @@
       }
     },
     "TABS": {
+      "DEFAULT": "默认",
       "DATA": "数据",
       "OPTIONS": "选项",
       "LOGS": "日志",
@@ -62,6 +71,8 @@
       "CLEAN_ALL": "清理全部",
       "RESUME": "恢复",
       "PAUSE": "暂停",
+      "RESUME_ALL": "全部恢复",
+      "PAUSE_ALL": "全部暂停",
       "EMPTY": "清空",
       "ADD_JOB": "添加作业",
       "CONFIRM": {
@@ -70,7 +81,9 @@
         "PROMOTE_ALL": "您确定要提升所有延迟作业吗？",
         "PAUSE_QUEUE": "您确定要暂停队列处理吗？",
         "EMPTY_QUEUE": "您确定要清空队列吗？",
-        "RESUME_QUEUE": "您确定要恢复队列处理吗？"
+        "RESUME_QUEUE": "您确定要恢复队列处理吗？",
+        "PAUSE_ALL": "您确定要暂停所有队列吗？",
+        "RESUME_ALL": "您确定要恢复所有队列吗？"
       }
     },
     "STATUS": {

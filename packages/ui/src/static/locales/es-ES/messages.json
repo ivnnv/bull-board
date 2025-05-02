@@ -10,7 +10,15 @@
     "JOBS_COUNT_many": "{{count}} Tareas",
     "JOBS_COUNT_other": "{{count}} Tareas",
     "JOBS_COUNT": "{{count}} Tareas",
-    "NO_FILTERED_MESSAGE": "No hay colas que tengan un trabajo con el estado \"{{status}}\".\n<lnk>Haz clic aquí</lnk> para borrar el filtro."
+    "SORTING": {
+      "TITLE": "Ordenar por",
+      "FAILED": "Trabajos fallidos",
+      "DELAYED": "Trabajos retrasados",
+      "WAITING": "Trabajos en espera",
+      "ACTIVE": "Trabajos activos",
+      "COMPLETED": "Trabajos completados",
+      "ALPHABETICAL": "Alfabético (A-Z)"
+    }
   },
   "JOB": {
     "DELAY_CHANGED": "*Retraso modificado; el nuevo tiempo de ejecución es actualmente desconocido",
@@ -50,6 +58,7 @@
       }
     },
     "TABS": {
+      "DEFAULT": "Predeterminado",
       "DATA": "Datos",
       "OPTIONS": "Opciones",
       "LOGS": "Registros",
@@ -65,6 +74,8 @@
       "CLEAN_ALL": "Limpiar todas",
       "RESUME": "Reanudar",
       "PAUSE": "Pausar",
+      "RESUME_ALL": "Reanudar todo",
+      "PAUSE_ALL": "Pausar todo",
       "EMPTY": "Vaciar",
       "ADD_JOB": "Añadir tarea",
       "CONFIRM": {
@@ -73,7 +84,9 @@
         "PROMOTE_ALL": "¿Estás seguro de que quieres promover todas las tareas retrasadas?",
         "PAUSE_QUEUE": "¿Estás seguro de que quieres pausar el procesamiento de la cola?",
         "EMPTY_QUEUE": "¿Estás seguro de que quieres vaciar la cola?",
-        "RESUME_QUEUE": "¿Estás seguro de que quieres reanudar el procesamiento de la cola?"
+        "RESUME_QUEUE": "¿Estás seguro de que quieres reanudar el procesamiento de la cola?",
+        "PAUSE_ALL": "¿Estás seguro de que deseas pausar todas las colas?",
+        "RESUME_ALL": "¿Estás seguro de que deseas reanudar todas las colas?"
       }
     },
     "STATUS": {

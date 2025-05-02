@@ -4,15 +4,34 @@ import cn from 'clsx';
 import { Status } from '@bull-board/api/typings/app';
 import { STATUSES } from '@bull-board/api/src/constants/statuses';
 
+type IProgress = number | { progress?: number } | string | boolean | null;
+
 interface ProgressProps {
-  progress: number | { progress?: number };
+  progress: IProgress;
   strokeWidth?: number;
   status: Status;
   className?: string;
 }
 
+function extractPercentage(progress: IProgress) {
+  if (typeof progress === 'number') {
+    return progress;
+  } else if (typeof progress === 'string') {
+    return Number.isNaN(+progress) ? null : +progress;
+  } else if (
+    !!progress &&
+    typeof progress !== 'boolean' &&
+    'progress' in progress &&
+    typeof progress.progress === 'number'
+  ) {
+    return progress.progress;
+  }
+
+  return null;
+}
+
 export const Progress = ({ progress, status, className, strokeWidth = 6 }: ProgressProps) => {
-  const percentage = typeof progress === 'number' ? progress : progress.progress ?? null;
+  const percentage = extractPercentage(progress);
   if (!percentage) {
     return null;
   }
@@ -41,8 +60,8 @@ export const Progress = ({ progress, status, className, strokeWidth = 6 }: Progr
         transform="rotate(-90)"
         {...commonProps}
       />
-      <text textAnchor="middle" dominantBaseline="middle" x="50%" y="50%">
-        {Math.round(percentage)}%
+      <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central">
+        <tspan dominantBaseline="central">{`${Math.round(percentage)}%`}</tspan>
       </text>
     </svg>
   );

@@ -52,7 +52,12 @@ export function useQueues(): Omit<QueuesState, 'updateQueues'> & { actions: Queu
           jobsPerPage,
         })
         .then((data) => {
-          setState(data.queues);
+          setState(
+            data.queues.map((queue) => {
+              queue.displayName = queue.displayName || queue.name;
+              return queue;
+            })
+          );
         })
         // eslint-disable-next-line no-console
         .catch((error) => console.error('Failed to poll', error)),
@@ -115,10 +120,23 @@ export function useQueues(): Omit<QueuesState, 'updateQueues'> & { actions: Queu
     jobOptions: Record<any, any>
   ) => withConfirmAndUpdate(() => api.addJob(queueName, jobName, jobData, jobOptions), '', false);
 
+  const pauseAll = withConfirmAndUpdate(
+    () => api.pauseAllQueues(),
+    t('QUEUE.ACTIONS.CONFIRM.PAUSE_ALL'),
+    confirmQueueActions
+  );
+  const resumeAll = withConfirmAndUpdate(
+    () => api.resumeAllQueues(),
+    t('QUEUE.ACTIONS.CONFIRM.RESUME_ALL'),
+    confirmQueueActions
+  );
+
   return {
     queues,
     loading,
     actions: {
+      pauseAll,
+      resumeAll,
       updateQueues,
       pollQueues,
       retryAll,

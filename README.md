@@ -29,6 +29,7 @@ With this library you get a beautiful UI for visualizing what's happening with e
 | [@bull-board/nestjs](https://www.npmjs.com/package/@bull-board/nestjs)   | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/nestjs)  |
 | [@bull-board/hono](https://www.npmjs.com/package/@bull-board/hono)       | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/hono)    |
 | [@bull-board/h3](https://www.npmjs.com/package/@bull-board/h3)           | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/h3)      |
+| [@bull-board/elysia](https://www.npmjs.com/package/@bull-board/elysia)           | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/elysia)      |
 
 ## Notes
 
@@ -46,6 +47,8 @@ If you want to learn more about queues ([Bull](https://github.com/OptimalBits/bu
 To add it to your project start by installing a server framework specific adapter to your dependencies list:
 
 ```sh
+yarn add @bull-board/api
+# and one of the following server adapters
 yarn add @bull-board/express
 # or
 yarn add @bull-board/fastify
@@ -59,6 +62,8 @@ yarn add @bull-board/nestjs
 yarn add @bull-board/hono
 # or
 yarn add @bull-board/h3
+# or
+yarn add @bull-board/elysia
 ```
 
 ### NestJS specific setup
@@ -69,7 +74,7 @@ yarn add @bull-board/h3
 ```js
 const express = require('express');
 const Queue = require('bull');
-const QueueMQ = require('bullmq');
+const { Queue: QueueMQ } = require('bullmq');
 const { createBullBoard } = require('@bull-board/api');
 const { BullAdapter } = require('@bull-board/api/bullAdapter');
 const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter');
@@ -113,8 +118,10 @@ For more advanced usages check the `examples` folder, currently it contains:
 5. [With Koa.js server](https://github.com/felixmosh/bull-board/tree/master/examples/with-koa)
 6. [With Nest.js server using the built-in module](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-module) (Thanx to @dennissnijder)
 7. [With Nest.js server using the express adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs) (Thanx to @lodi-g)
-8. [With Hono server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hono) (Thanks to @nihalgonsalves)
+8. [With Nest.js server using the fastify adapter + auth](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-fastify-auth) (Thanx to @arfath77)
+9. [With Hono server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hono) (Thanks to @nihalgonsalves)
 8. [With H3 server using the h3 adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-h3) (Thanx to @genu)
+9. [With Elysia server using the elysia adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-elysia) (Thanx to @kravetsone)
 
 
 ### Board options
@@ -128,7 +135,7 @@ An array of misc link that you can add to the dashboard, such as logout link.
 An object that allows you to specify the default and alternative favicons.
 
 ```js
-const QueueMQ = require('bullmq');
+const { Queue: QueueMQ } = require('bullmq');
 const {createBullBoard} = require('@bull-board/api');
 const {BullMQAdapter} = require('@bull-board/api/bullMQAdapter');
 
@@ -161,7 +168,7 @@ Makes the UI as read only, hides all queue & job related actions
 
 ```js
 const Queue = require('bull')
-const QueueMQ = require('bullmq')
+const { Queue: QueueMQ } = require('bullmq');
 const { createBullBoard } = require('@bull-board/api')
 const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter')
 const { BullAdapter } = require('@bull-board/api/bullAdapter')
@@ -181,7 +188,7 @@ createBullBoard({
 When set to `false` the UI removes the job retry buttons for a queue. This option will be ignored if `readOnlyMode` is `true`.
 
 ```js
-const QueueMQ = require('bullmq')
+const { Queue: QueueMQ } = require('bullmq');
 const { createBullBoard } = require('@bull-board/api')
 const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter')
 const { BullAdapter } = require('@bull-board/api/bullAdapter')
@@ -206,7 +213,7 @@ createBullBoard({
    You can specify a formatter for `'data' | 'returnValue' | 'name'` job's fields.
 
 ```js
-const QueueMQ = require('bullmq');
+const { Queue: QueueMQ } = require('bullmq');
 const fastRedact = require('fast-redact');
 const { createBullBoard } = require('@bull-board/api');
 const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter');

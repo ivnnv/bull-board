@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { languages } from '../../constants/languages';
 import { useSettingsStore } from '../../hooks/useSettings';
 import { useUIConfig } from '../../hooks/useUIConfig';
 import { InputField } from '../Form/InputField/InputField';
@@ -15,7 +16,6 @@ export interface SettingsModalProps {
 }
 
 const pollingIntervals = [-1, 3, 5, 10, 20, 60, 60 * 5, 60 * 15];
-const languages = ['en-US', 'es-ES', 'fr-FR', 'pt-BR', 'zh-CN'];
 const maxJobsPerPage = 300;
 
 export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
@@ -68,7 +68,7 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
       <SelectField
         label={t('SETTINGS.DEFAULT_JOB_TAB')}
         id="default-job-tab"
-        options={availableJobTabs.map((tab) => ({
+        options={['default'].concat(availableJobTabs).map((tab) => ({
           text: t(`JOB.TABS.${tab.toUpperCase()}`),
           value: tab,
         }))}

@@ -5,10 +5,10 @@ import { BullMQAdapter } from '@bull-board/api/src/queueAdapters/bullMQ';
 import { createBullBoard } from '@bull-board/api/src';
 import { ExpressAdapter } from '@bull-board/express/src';
 
-const queuesIds = ['binance', 'mexc'].map((eId) => `{${eId}}`);
+const queuesIds = ['capitalcom'].map((eId) => `{${eId}}`);
 const redisOptions = {
-  port: 26379,
-  host: 'api-qa.tradingdroid.net',
+  port: 6379,
+  host: 'localhost',
   password: 'admin21',
   db: 1,
 };

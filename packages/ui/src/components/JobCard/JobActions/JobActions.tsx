@@ -52,6 +52,9 @@ const statusToButtonsMap: Record<string, ButtonType[]> = {
   ],
   [STATUSES.completed]: [buttonTypes.duplicate, buttonTypes.retry, buttonTypes.clean],
   [STATUSES.waiting]: [buttonTypes.duplicate, buttonTypes.updateData, buttonTypes.clean],
+  [STATUSES.waitingChildren]: [buttonTypes.duplicate, buttonTypes.updateData, buttonTypes.clean],
+  [STATUSES.prioritized]: [buttonTypes.duplicate, buttonTypes.updateData, buttonTypes.clean],
+  [STATUSES.paused]: [buttonTypes.duplicate, buttonTypes.updateData, buttonTypes.clean],
 } as const;
 
 export const JobActions = ({ actions, status, allowRetries }: JobActionsProps) => {

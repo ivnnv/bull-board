@@ -1,24 +1,26 @@
 import cn from 'clsx';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router-dom';
-import { useSelectedStatuses } from '../../hooks/useSelectedStatuses';
-import { useQueues } from './../../hooks/useQueues';
-import { links } from '../../utils/links';
+import { useQueues } from '../../hooks/useQueues';
+import { toTree } from '../../utils/toTree';
 import { SearchIcon } from '../Icons/Search';
 import s from './Menu.module.css';
+import { MenuTree } from './MenuTree/MenuTree';
 
 export const Menu = () => {
   const { t } = useTranslation();
   const { queues } = useQueues();
-
-  const selectedStatuses = useSelectedStatuses();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const tree = toTree(
+    queues?.filter((queue) =>
+      queue.name?.toLowerCase().includes(searchTerm?.toLowerCase() as string)
+    ) || []
+  );
 
   return (
     <aside className={s.aside}>
       <div className={s.secondary}>{t('MENU.QUEUES')}</div>
-
       {(queues?.length || 0) > 5 && (
         <div className={s.searchWrapper}>
           <SearchIcon />
@@ -33,30 +35,16 @@ export const Menu = () => {
         </div>
       )}
       <nav>
-        {!!queues && (
-          <ul className={s.menu}>
-            {queues
-              .filter(({ name }) =>
-                name?.toLowerCase().includes(searchTerm?.toLowerCase() as string)
-              )
-              .map(({ name: queueName, isPaused }) => (
-                <li key={queueName}>
-                  <NavLink
-                    to={links.queuePage(queueName, selectedStatuses)}
-                    activeClassName={s.active}
-                    title={queueName}
-                  >
-                    {queueName}{' '}
-                    {isPaused && <span className={s.isPaused}>[ {t('MENU.PAUSED')} ]</span>}
-                  </NavLink>
-                </li>
-              ))}
-          </ul>
-        )}
+        <MenuTree tree={tree} />
       </nav>
-        <a className={cn(s.appVersion, s.secondary)} target="_blank" rel="noreferrer"
-           href="https://github.com/felixmosh/bull-board/releases"
-        >{process.env.APP_VERSION}</a>
+      <a
+        className={cn(s.appVersion, s.secondary)}
+        target="_blank"
+        rel="noreferrer"
+        href={process.env.BULL_BOARD_REPO}
+      >
+        {process.env.APP_VERSION}
+      </a>
     </aside>
   );
 };

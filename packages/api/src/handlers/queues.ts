@@ -15,6 +15,7 @@ export const formatJob = (job: QueueJob, queue: BaseAdapter): AppJob => {
   const jobProps = job.toJSON();
 
   const stacktrace = jobProps.stacktrace ? jobProps.stacktrace.filter(Boolean) : [];
+  stacktrace.reverse();
 
   return {
     id: jobProps.id,
@@ -80,6 +81,7 @@ async function getAppQueues(
 
       return {
         name: queueName,
+        displayName: queue.getDisplayName() || undefined,
         description: queue.getDescription() || undefined,
         statuses: queue.getStatuses(),
         counts: counts as Record<Status, number>,
@@ -90,6 +92,7 @@ async function getAppQueues(
         allowCompletedRetries: queue.allowCompletedRetries,
         isPaused,
         type: queue.type,
+        delimiter: queue.delimiter,
       };
     })
   );

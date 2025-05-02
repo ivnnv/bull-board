@@ -31,6 +31,8 @@ export interface QueueAdapterOptions {
   allowRetries: boolean;
   prefix: string;
   description: string;
+  displayName: string;
+  delimiter: string;
 }
 
 export type BullBoardQueues = Map<string, BaseAdapter>;
@@ -58,7 +60,7 @@ export interface QueueJobJson {
   id?: string | undefined | number | null;
   name: string;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  progress: number | object;
+  progress: string | boolean | number | object;
   attemptsMade: number;
   finishedOn?: number | null;
   processedOn?: number | null;
@@ -117,7 +119,9 @@ export interface AppJob {
 export type QueueType = 'bull' | 'bullmq';
 
 export interface AppQueue {
+  delimiter: string;
   name: string;
+  displayName?: string;
   description?: string;
   counts: Record<Status, number>;
   jobs: AppJob[];
@@ -199,7 +203,7 @@ export type FormatterField = 'data' | 'returnValue' | 'name';
 
 export type BoardOptions = {
   uiBasePath?: string;
-  uiConfig: UIConfig;
+  uiConfig?: UIConfig;
 };
 
 export type IMiscLink = {
@@ -211,6 +215,7 @@ export type UIConfig = Partial<{
   boardTitle: string;
   boardLogo: { path: string; width?: number | string; height?: number | string };
   miscLinks: Array<IMiscLink>;
+  queueSortOptions: Array<{ key: string; label: string }>;
   favIcon: FavIcon;
   locale: { lng?: string };
   dateFormats?: DateFormats;
