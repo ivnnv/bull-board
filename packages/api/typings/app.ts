@@ -1,6 +1,7 @@
 import { RedisInfo } from 'redis-info';
 import { STATUSES } from '../src/constants/statuses';
 import { BaseAdapter } from '../src/queueAdapters/base';
+import type { RouteProps, RouteComponentProps } from 'react-router-dom';
 
 export type JobCleanStatus = 'completed' | 'wait' | 'active' | 'delayed' | 'failed';
 
@@ -211,10 +212,17 @@ export type IMiscLink = {
   url: string;
 };
 
+export type IUiRoute = Pick<RouteProps, 'exact' | 'render'> & {
+  title: string;
+  path: string;
+  component?: React.ComponentType<any> | React.ComponentType<RouteComponentProps>;
+};
+
 export type UIConfig = Partial<{
   boardTitle: string;
   boardLogo: { path: string; width?: number | string; height?: number | string };
   miscLinks: Array<IMiscLink>;
+  uiRoutes: IUiRoute[];
   queueSortOptions: Array<{ key: string; label: string }>;
   favIcon: FavIcon;
   locale: { lng?: string };

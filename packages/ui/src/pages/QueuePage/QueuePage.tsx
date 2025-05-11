@@ -117,10 +117,11 @@ export const QueuePage = () => {
               setEditJob(null);
               modal.close('updateJobData');
             }}
+            /* @ts-expect-error | Mola */
             job={editJob}
           />
         )}
       </Suspense>
     </section>
   );
-};
+}

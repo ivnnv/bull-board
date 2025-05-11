@@ -93,6 +93,7 @@ export const JobPage = () => {
           <UpdateJobDataModalLazy
             open={modal.isOpen('updateJobData')}
             onClose={modal.close('updateJobData')}
+            /* @ts-expect-error | Mola */
             job={job}
           />
         )}

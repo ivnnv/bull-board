@@ -2,8 +2,10 @@
 import { Queue } from 'bullmq';
 import express from 'express';
 import { BullMQAdapter } from '@bull-board/api/src/queueAdapters/bullMQ';
+import { IServerAdapter } from '@bull-board/api/typings/app';
 import { createBullBoard } from '@bull-board/api/src';
 import { ExpressAdapter } from '@bull-board/express/src';
+import { InstrumentsPage } from './packages/ui/src/pages/Tradingdroid/InstrumentsPage';
 
 const queuesIds = ['capitalcom'].map((eId) => `{${eId}}`);
 const redisOptions = {
@@ -27,19 +29,49 @@ const run = async () => {
     queues.push(new BullMQAdapter(exQueue));
   }
 
-  const serverAdapter: any = new ExpressAdapter();
-  serverAdapter.setBasePath('/ui');
+  const expressAdapter = new ExpressAdapter();
+  expressAdapter.setBasePath('/ui');
+  expressAdapter.setUIConfig({
+    boardTitle: 'Holis',
+  });
+  expressAdapter.setViewsPath(__dirname + '/views');
 
   createBullBoard({
     queues,
-    serverAdapter,
+    serverAdapter: expressAdapter as unknown as IServerAdapter,
+    options: {
+      uiConfig: {
+        boardTitle: 'Holis Dashboard',
+        miscLinks: [
+          {
+            text: 'Instruments',
+            url: './instruments',
+          }
+        ],
+        uiRoutes: [
+          {
+            title: 'Ui Instruments',
+            path: '/instruments',
+            exact: true,
+            component: InstrumentsPage,
+          },
+        ],
+      },
+    },
   });
 
-  app.use('/ui', serverAdapter.getRouter());
+  app.use('/ui', expressAdapter.getRouter());
 
   app.listen(3000, () => {
     console.log('Express app running on :3000');
-  });
+
+    // setTimeout(() => {
+    //   bullBoard.addExchange({
+    //       id: 'capitalcom',
+    //       name: 'Capital.com',
+    //   } as unknown as any);
+    // }, 1000);
+    });
 };
 
 run().catch((e) => console.error(e));
