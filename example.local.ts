@@ -5,7 +5,6 @@ import { BullMQAdapter } from '@bull-board/api/src/queueAdapters/bullMQ';
 import { IServerAdapter } from '@bull-board/api/typings/app';
 import { createBullBoard } from '@bull-board/api/src';
 import { ExpressAdapter } from '@bull-board/express/src';
-import { InstrumentsPage } from './packages/ui/src/pages/Tradingdroid/InstrumentsPage';
 
 const queuesIds = ['capitalcom'].map((eId) => `{${eId}}`);
 const redisOptions = {
@@ -47,14 +46,6 @@ const run = async () => {
             text: 'Instruments',
             url: './instruments',
           }
-        ],
-        uiRoutes: [
-          {
-            title: 'Ui Instruments',
-            path: '/instruments',
-            exact: true,
-            component: InstrumentsPage,
-          },
         ],
       },
     },
