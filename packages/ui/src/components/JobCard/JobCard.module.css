@@ -52,6 +52,7 @@
   color: var(--card-text-color);
 }
 
+
 .details {
   display: flex;
   margin-top: 1rem;
@@ -199,5 +200,18 @@
     position: absolute;
     bottom: 0.5rem;
     right: 0.5rem;
+  }
+  
+  .title {
+    gap: 0.5rem;
+  }
+  
+  .title h5 {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60%;
   }
 }
