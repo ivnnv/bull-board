@@ -27,12 +27,6 @@ const OverviewPageLazy = React.lazy(() =>
   }))
 );
 
-const InstrumentsPageLazy = React.lazy(() =>
-  import('./pages/Tradingdroid/InstrumentsPage').then(({ InstrumentsPage }) => ({
-    default: InstrumentsPage,
-  }))
-);
-
 export const App = () => {
   useScrollTopOnNav();
   const { actions: queueActions } = useQueues();
@@ -55,7 +49,6 @@ export const App = () => {
         <div>
           <Suspense fallback={<Loader />}>
             <Switch>
-              <Route path="/instruments" exact render={() => <InstrumentsPageLazy />} />
               <Route path="/queue/:name/:jobId" render={() => <JobPageLazy />} />
               <Route path="/queue/:name" render={() => <QueuePageLazy />} />
               <Route path="/" exact render={() => <OverviewPageLazy />} />
