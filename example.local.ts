@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Queue } from 'bullmq';
 import express from 'express';
 import { BullMQAdapter } from '@bull-board/api/src/queueAdapters/bullMQ';
@@ -41,12 +40,6 @@ const run = async () => {
     options: {
       uiConfig: {
         boardTitle: 'Holis Dashboard',
-        miscLinks: [
-          {
-            text: 'Instruments',
-            url: './instruments',
-          }
-        ],
       },
     },
   });
