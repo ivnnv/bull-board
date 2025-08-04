@@ -64,7 +64,6 @@ export class ExpressAdapter implements IServerAdapter {
                 queues: this.bullBoardQueues!,
                 query: req.query,
                 params: req.params,
-                /* @ts-expect-error | X */
                 body: req.body,
                 headers: req.headers as Record<string, string>,
               });

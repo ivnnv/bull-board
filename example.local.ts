@@ -6,7 +6,7 @@ import { IServerAdapter } from '@bull-board/api/typings/app';
 import { createBullBoard } from '@bull-board/api/src';
 import { ExpressAdapter } from '@bull-board/express/src';
 
-const queuesIds = ['capitalcom'].map((eId) => `{${eId}}`);
+const queuesIds = ['capitalcom', 'binance', 'okx'].map((eId) => `{${eId}}`);
 const redisOptions = {
   port: 6379,
   host: 'localhost',
@@ -55,14 +55,7 @@ const run = async () => {
 
   app.listen(3000, () => {
     console.log('Express app running on :3000');
-
-    // setTimeout(() => {
-    //   bullBoard.addExchange({
-    //       id: 'capitalcom',
-    //       name: 'Capital.com',
-    //   } as unknown as any);
-    // }, 1000);
-    });
+  });
 };
 
 run().catch((e) => console.error(e));
