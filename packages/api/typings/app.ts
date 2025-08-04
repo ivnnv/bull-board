@@ -16,16 +16,20 @@ type BullStatuses = Exclude<BullMQStatuses, 'prioritized' | 'waiting-children'>;
 export type Status<Lib extends Library = 'bullmq'> = Lib extends 'bullmq'
   ? BullMQStatuses
   : Lib extends 'bull'
-  ? BullStatuses
-  : never;
+    ? BullStatuses
+    : never;
 
 export type JobStatus<Lib extends Library = 'bullmq'> = Lib extends 'bullmq'
   ? Exclude<BullMQStatuses, 'latest'>
   : Lib extends 'bull'
-  ? Exclude<BullStatuses, 'latest'>
-  : never;
+    ? Exclude<BullStatuses, 'latest'>
+    : never;
 
 export type JobCounts = Record<Status, number>;
+export type ExternalJobUrl = {
+  displayText?: string;
+  href: string;
+};
 
 export interface QueueAdapterOptions {
   readOnlyMode: boolean;
@@ -34,6 +38,7 @@ export interface QueueAdapterOptions {
   description: string;
   displayName: string;
   delimiter: string;
+  externalJobUrl?: (job: QueueJobJson) => ExternalJobUrl;
 }
 
 export type BullBoardQueues = Map<string, BaseAdapter>;
@@ -52,7 +57,9 @@ export interface QueueJob {
   toJSON(): QueueJobJson;
 
   getState(): Promise<Status | 'stuck' | 'waiting-children' | 'prioritized' | 'unknown'>;
+
   update?(jobData: Record<string, any>): Promise<void>;
+
   updateData?(jobData: Record<string, any>): Promise<void>;
 }
 
@@ -60,7 +67,6 @@ export interface QueueJobJson {
   // add properties as needed from real Bull/BullMQ jobs
   id?: string | undefined | number | null;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   progress: string | boolean | number | object;
   attemptsMade: number;
   finishedOn?: number | null;
@@ -115,6 +121,10 @@ export interface AppJob {
   data: QueueJobJson['data'];
   returnValue: QueueJobJson['returnvalue'];
   isFailed: boolean;
+  externalUrl?: {
+    displayText?: string;
+    href: string;
+  };
 }
 
 export type QueueType = 'bull' | 'bullmq';
@@ -143,6 +153,7 @@ export interface BullBoardRequest {
   query: Record<string, any>;
   params: Record<string, any>;
   body: Record<string, any>;
+  headers: Record<string, string | undefined>;
 }
 
 export type ControllerHandlerReturnType = {
@@ -231,6 +242,7 @@ export type UIConfig = Partial<{
     showSetting: boolean;
     forceInterval: number;
   }>;
+  menu?: { width?: string };
 }>;
 
 export type FavIcon = {

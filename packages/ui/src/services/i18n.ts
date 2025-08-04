@@ -8,6 +8,9 @@ export let dateFnsLocale = enLocale;
 const dateFnsLocaleMap = {
   'es-ES': 'es',
   'fr-FR': 'fr',
+  'ja-JP': 'ja',
+  'tr-TR': 'tr',
+  'da-DK': 'da',
 } as const;
 
 async function setDateFnsLocale(lng: string) {
@@ -31,8 +34,7 @@ export async function initI18n({ lng, basePath }: { lng: string; basePath: strin
     .use(HttpBackend);
 
   if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { HMRPlugin } = require('i18next-hmr/plugin');
+    const { HMRPlugin } = await import('i18next-hmr/plugin');
     i18nextInstance.use(new HMRPlugin({ webpack: { client: true } }));
     (window as any).testI18n = (lng = 'cimode') => i18nextInstance.changeLanguage(lng);
   }

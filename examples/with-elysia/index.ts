@@ -44,7 +44,7 @@ createBullBoard({
   options: {
     // This configuration fixes a build error on Bun caused by eval (https://github.com/oven-sh/bun/issues/5809#issuecomment-2065310008)
     uiBasePath: 'node_modules/@bull-board/ui',
-  }
+  },
 });
 
 const app = new Elysia()

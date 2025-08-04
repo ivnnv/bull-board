@@ -29,7 +29,7 @@ With this library you get a beautiful UI for visualizing what's happening with e
 | [@bull-board/nestjs](https://www.npmjs.com/package/@bull-board/nestjs)   | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/nestjs)  |
 | [@bull-board/hono](https://www.npmjs.com/package/@bull-board/hono)       | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/hono)    |
 | [@bull-board/h3](https://www.npmjs.com/package/@bull-board/h3)           | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/h3)      |
-| [@bull-board/elysia](https://www.npmjs.com/package/@bull-board/elysia)           | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/elysia)      |
+| [@bull-board/elysia](https://www.npmjs.com/package/@bull-board/elysia)   | ![npm (scoped)](https://img.shields.io/npm/v/@bull-board/elysia)  |
 
 ## Notes
 
@@ -67,6 +67,7 @@ yarn add @bull-board/elysia
 ```
 
 ### NestJS specific setup
+
 @bull-board provides a module for easy integration with NestJS, for reference on how to use the module refer to the [NestJS Module](https://github.com/felixmosh/bull-board/tree/master/packages/nestjs) package
 
 ## Hello World
@@ -109,22 +110,23 @@ app.listen(3000, () => {
 
 That's it! Now you can access the `/admin/queues` route, and you will be able to monitor everything that is happening in your queues 😁
 
-
 For more advanced usages check the `examples` folder, currently it contains:
+
 1. [Basic authentication example](https://github.com/felixmosh/bull-board/tree/master/examples/with-express-auth)
 2. [Multiple instance of the board](https://github.com/felixmosh/bull-board/tree/master/examples/with-multiple-instances)
 3. [With Fastify server](https://github.com/felixmosh/bull-board/tree/master/examples/with-fastify)
-4. [With Hapi.js server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hapi)
-5. [With Koa.js server](https://github.com/felixmosh/bull-board/tree/master/examples/with-koa)
-6. [With Nest.js server using the built-in module](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-module) (Thanx to @dennissnijder)
-7. [With Nest.js server using the express adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs) (Thanx to @lodi-g)
-8. [With Nest.js server using the fastify adapter + auth](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-fastify-auth) (Thanx to @arfath77)
-9. [With Hono server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hono) (Thanks to @nihalgonsalves)
-8. [With H3 server using the h3 adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-h3) (Thanx to @genu)
-9. [With Elysia server using the elysia adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-elysia) (Thanx to @kravetsone)
-
+4. [With Fastify server and visibilityGuard](https://github.com/felixmosh/bull-board/tree/master/examples/with-fastify-visibility-guard)
+5. [With Hapi.js server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hapi)
+6. [With Koa.js server](https://github.com/felixmosh/bull-board/tree/master/examples/with-koa)
+7. [With Nest.js server using the built-in module](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-module) (Thanx to @dennissnijder)
+8. [With Nest.js server using the express adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs) (Thanx to @lodi-g)
+9. [With Nest.js server using the fastify adapter + auth](https://github.com/felixmosh/bull-board/tree/master/examples/with-nestjs-fastify-auth) (Thanx to @arfath77)
+10. [With Hono server](https://github.com/felixmosh/bull-board/tree/master/examples/with-hono) (Thanks to @nihalgonsalves)
+11. [With H3 server using the h3 adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-h3) (Thanx to @genu)
+12. [With Elysia server using the elysia adapter](https://github.com/felixmosh/bull-board/tree/master/examples/with-elysia) (Thanx to @kravetsone)
 
 ### Board options
+
 1. `uiConfig.boardTitle` (default: `Bull Dashboard`)
 The Board and page titles
 2. `uiConfig.boardLogo` (default: `empty`) `{ path: string; width?: number | string; height?: number | string }`
@@ -163,6 +165,7 @@ createBullBoard({
 ```
 
 ### Queue options
+
 1. `readOnlyMode` (default: `false`)
 Makes the UI as read only, hides all queue & job related actions
 
@@ -231,6 +234,51 @@ queueAdapter.setFormatter('returnValue', (returnValue) => redact(returnValue));
 createBullBoard({
   queues: [queueAdapter]
 })
+```
+
+### Queue Visibility
+
+You can control which queues are visible in the UI on a per-request basis using the `visibilityGuard`. This is useful for implementing features like multi-tenancy or user-based access control.
+
+The `setVisibilityGuard` method on a queue adapter accepts a function that receives the `BullBoardRequest` object and should return `true` if the queue should be visible, and `false` otherwise.
+
+```javascript
+const { createBullBoard } = require('@bull-board/api');
+const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter');
+const { ExpressAdapter } = require('@bull-board/express');
+
+// A simple authentication middleware
+function isAuthenticated(req, res, next) {
+  // Replace with your actual authentication logic
+  req.user = { id: 'user1', permissions: ['view:queue1'] };
+  next();
+}
+
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath('/admin/queues');
+
+const queue1 = new BullMQAdapter(new QueueMQ('queue1'));
+queue1.setVisibilityGuard((request: BullBoardRequest) => {
+  // `request.headers` can be used to check for authentication tokens
+  return true
+});
+
+const queue2 = new BullMQAdapter(new QueueMQ('queue2'));
+queue2.setVisibilityGuard((request: BullBoardRequest) => {
+  // `request.headers` can be used to check for authentication tokens
+  return true
+});
+
+createBullBoard({
+  queues: [queue1, queue2],
+  serverAdapter,
+});
+
+const app = express();
+app.use(isAuthenticated); // Use your authentication middleware
+app.use('/admin/queues', serverAdapter.getRouter());
+
+// ...
 ```
 
 ### Hosting router on a sub path
@@ -304,7 +352,7 @@ Also make sure you are running **Redis** for this project (bull-board's example 
 Now, to try it out locally you can run:
 
 ```sh
-yarn && yarn build && yarn start:dev
+yarn && yarn build && yarn dev
 ```
 
 The ui open automaticlly in the browser at `http://localhost:3000/ui`

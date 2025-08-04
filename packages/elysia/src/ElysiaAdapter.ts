@@ -1,3 +1,4 @@
+import { glob, createReadStream } from 'node:fs';
 import type {
   AppControllerRoute,
   AppViewRoute,
@@ -9,12 +10,14 @@ import type {
 } from '@bull-board/api/dist/typings/app';
 import ejs from 'ejs';
 import { Elysia } from 'elysia';
+import mime from 'mimeV4';
+import { extname, resolve } from 'node:path';
 
 export class ElysiaAdapter implements IServerAdapter {
   private plugin = new Elysia({
     name: '@bull-board/elysia',
-  }).as('plugin');
-  private basePath = '';
+  });
+  private readonly basePath: string = '';
   private entryRoute: AppViewRoute | undefined;
   private statics: { path: string; route: string } | undefined;
   private bullBoardQueues: BullBoardQueues | undefined;
@@ -83,7 +86,7 @@ export class ElysiaAdapter implements IServerAdapter {
     return this;
   }
 
-  public registerPlugin() {
+  public async registerPlugin() {
     if (!this.statics) {
       throw new Error(`Please call 'setStaticPath' before using 'registerHandlers'`);
     }
@@ -117,16 +120,41 @@ export class ElysiaAdapter implements IServerAdapter {
       });
     }
 
-    const glob = new Bun.Glob(`${this.statics.path}/**/*`);
-    for (const path of glob.scanSync()) {
-      this.plugin.get(
-        // TODO: maybe recode this
-        path.substring(path.indexOf('dist') + 4).replaceAll('\\', '/'),
-        () => new Response(Bun.file(path))
-      );
+    const staticsPath = resolve(this.statics.path);
+
+    const paths = await new Promise<string[]>((resolve, reject) => {
+      glob(`${staticsPath}/**/*`, (err, files) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(files);
+        }
+      });
+    });
+
+    for (const path of paths) {
+      const relativePath = path.substring(path.indexOf('dist') + 4).replaceAll('\\', '/');
+      this.plugin.get(relativePath, async () => {
+        const nodeStream = createReadStream(path);
+        const stream = new ReadableStream({
+          start(controller) {
+            nodeStream.on('data', (chunk) => controller.enqueue(chunk));
+            nodeStream.on('end', () => controller.close());
+            nodeStream.on('error', (err) => controller.error(err));
+          },
+          cancel() {
+            nodeStream.destroy();
+          },
+        });
+        return new Response(stream, {
+          headers: {
+            'content-type': mime.getType(extname(path)) ?? 'text/plain',
+          },
+        });
+      });
     }
 
-    return this.plugin.as('plugin');
+    return this.plugin.as('scoped');
   }
 
   private registerRoute(
@@ -143,23 +171,28 @@ export class ElysiaAdapter implements IServerAdapter {
     const routes = Array.isArray(routeOrRoutes) ? routeOrRoutes : [routeOrRoutes];
 
     for (const route of routes) {
-      this.plugin.route(method.toUpperCase(), route, async ({ params, body, query, set }) => {
-        const response = await handler({
-          queues: this.bullBoardQueues as BullBoardQueues,
-          params: Object.fromEntries(
-            Object.entries(params || {}).map(([key, value]) => [
-              key,
-              typeof value === 'string' ? decodeURIComponent(value) : value,
-            ])
-          ),
-          body: body as Record<string, unknown>,
-          query,
-        });
+      this.plugin.route(
+        method.toUpperCase(),
+        route,
+        async ({ params, body, query, headers, set }) => {
+          const response = await handler({
+            queues: this.bullBoardQueues as BullBoardQueues,
+            params: Object.fromEntries(
+              Object.entries(params || {}).map(([key, value]) => [
+                key,
+                typeof value === 'string' ? decodeURIComponent(value) : value,
+              ])
+            ),
+            body: body as Record<string, unknown>,
+            query,
+            headers,
+          });
 
-        if (response.status) set.status = response.status;
+          if (response.status) set.status = response.status;
 
-        return response.body;
-      });
+          return response.body;
+        }
+      );
     }
   }
 }
