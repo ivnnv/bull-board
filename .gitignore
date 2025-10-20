@@ -1,12 +1,14 @@
 node_modules/
 .DS_Store
-dist
 yarn-error.log
 *.rdb
 website/build
 docker-compose.dockest-generated.yml
 dockest-error.json
 .idea/
+.vscode
+.claude
+example.local.ts
 
 .yarn/*
 !.yarn/patches
@@ -14,3 +16,11 @@ dockest-error.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Ignore dist files by default
+dist
+
+# But keep the ones we actually use in td-custom
+!packages/api/dist
+!packages/express/dist
+!packages/ui/dist
