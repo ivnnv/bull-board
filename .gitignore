@@ -16,3 +16,11 @@ example.local.ts
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Ignore dist files by default
+dist
+
+# But keep the ones we actually use in td-custom
+!packages/api/dist
+!packages/express/dist
+!packages/ui/dist
