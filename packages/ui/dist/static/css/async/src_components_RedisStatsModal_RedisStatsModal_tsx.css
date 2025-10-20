@@ -1,0 +1,21 @@
+.src-components-RedisStatsModal-RedisStatsModal-module__redisStats-bLzaEu {
+  margin: 0;
+  padding: 0;
+  font-weight: 200;
+  list-style: none;
+}
+
+.src-components-RedisStatsModal-RedisStatsModal-module__redisStats-bLzaEu > li {
+  justify-content: space-between;
+  margin: 1rem 0;
+  display: flex;
+}
+
+.src-components-RedisStatsModal-RedisStatsModal-module__redisStats-bLzaEu > li > span:first-child {
+  color: var(--accent-color-d1);
+}
+
+.src-components-RedisStatsModal-RedisStatsModal-module__redisStats-bLzaEu > li small {
+  margin-inline-end: 1rem;
+}
+
